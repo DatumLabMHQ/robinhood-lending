@@ -1,0 +1,50 @@
+/* Datum dashboard design system. Tokens first, components after. Both themes, tabular numbers. */
+:root {
+  --ground: #F7F6F2; --panel: #FFFFFF; --panel-2: #EEEDE6; --ink: #1A1D22; --muted: #5E6672; --rule: #DAD9D0;
+  --accent: #1F6F5C; --accent-ink: #FFFFFF; --accent-soft: #DCEBE5; --good: #2E7D5B; --warn: #B8861B; --bad: #A5433A;
+  --serif: "Source Serif 4", Georgia, serif; --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; --mono: "IBM Plex Mono", Menlo, monospace;
+  --radius: 8px; --max: 1180px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #14171B; --panel: #1B1F24; --panel-2: #23282E; --ink: #E7E8E3; --muted: #A3AAB3; --rule: #333941;
+  --accent: #6FC1A8; --accent-ink: #0F1A16; --accent-soft: #1E3A32; --good: #6FC49A; --warn: #D9A93F; --bad: #E08A82;
+} }
+:root[data-theme="dark"] {
+  --ground: #14171B; --panel: #1B1F24; --panel-2: #23282E; --ink: #E7E8E3; --muted: #A3AAB3; --rule: #333941;
+  --accent: #6FC1A8; --accent-ink: #0F1A16; --accent-soft: #1E3A32; --good: #6FC49A; --warn: #D9A93F; --bad: #E08A82;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+.shell { max-width: var(--max); margin: 0 auto; padding: 28px 24px 80px; }
+.topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 22px; }
+.brand { font-family: var(--serif); font-size: 1.55rem; font-weight: 600; letter-spacing: -0.01em; }
+.brand small { font-family: var(--sans); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-left: 12px; }
+.nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.9rem; }
+.nav a { color: var(--muted); padding: 4px 2px; border-bottom: 2px solid transparent; }
+.nav a.on { color: var(--ink); border-color: var(--accent); }
+.meta { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 500; vertical-align: middle; }
+.pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.pill.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+h1 { font-family: var(--serif); font-size: 1.9rem; font-weight: 600; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin: 34px 0 10px; }
+.lede { color: var(--muted); max-width: 70ch; margin: 0 0 22px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0 0 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 14px; }
+.kpi .label { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.kpi .value { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.kpi .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.panel-head h2 { margin: 0; font-size: 1.05rem; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; white-space: nowrap; }
+th { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr:hover td { background: var(--panel-2); }
+.note { font-size: 0.82rem; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.chart { height: 260px; }
+.foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.78rem; color: var(--muted); }
