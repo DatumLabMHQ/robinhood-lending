@@ -4,6 +4,8 @@ export const CHAIN_ID = 4663;                // Robinhood Chain
 export const CHAIN_SLUG = 'robinhood chain'; // DefiLlama's chain key
 
 export const config = {
+  // 'draft' until `datum check <slug>` prints READY and the owner signs the brief; the page says so.
+  status: 'draft' as 'draft' | 'live',
   slug: 'robinhood-lending',
   title: 'State of Lending on Robinhood Chain',
   description: 'Every lending market and vault on Robinhood Chain, read hourly from the Datum data platform. Morpho is the chain\'s lending layer today; the smaller protocols DefiLlama lists are tracked beside it.',

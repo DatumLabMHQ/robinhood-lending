@@ -48,3 +48,5 @@ tr:hover td { background: var(--panel-2); }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
 .chart { height: 260px; }
 .foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.78rem; color: var(--muted); }
+
+.draft-banner { background: color-mix(in srgb, var(--warn) 16%, transparent); border: 1px solid var(--warn); color: var(--ink); border-radius: var(--radius); padding: 8px 12px; font-size: 0.85rem; margin: 0 0 18px; }

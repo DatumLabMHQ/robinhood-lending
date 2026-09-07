@@ -16,6 +16,7 @@ export async function Shell({ children }: { children: React.ReactNode }) {
           {h ? <>platform build {h.last_build ? new Date(h.last_build).toUTCString().slice(5, 22) : '—'} UTC · <span className={`pill ${h.ok ? '' : 'warn'}`}>{h.ok ? 'healthy' : 'degraded'}</span></> : <span className="pill bad">platform unreachable</span>}
         </div>
       </header>
+      {(config as { status?: string }).status === 'draft' ? <div className="draft-banner">Draft. Numbers are live from the platform but the brief is not signed off and the reconciliation is not logged; do not embed or share yet.</div> : null}
       {children}
       <footer className="foot">Every number on this page comes from the Datum data platform's curated tables, read through datum-api. Definitions live in datum-context; disagreements with other sources are logged, not hidden.</footer>
     </div>
