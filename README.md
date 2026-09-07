@@ -2,7 +2,7 @@
 
 Every lending market and vault on Robinhood Chain, read hourly from the Datum data platform.
 
-Built with [datum-kit](https://github.com/DatumLabMHQ/datum-kit). Every number comes from the Datum data platform
+Built with [datum-kit](https://github.com/DatumLabMHQ/datum-databuild-kit). Every number comes from the Datum data platform
 through datum-api; this app holds no data and runs no crons.
 
 - `datum.config.ts`: product, resources, questions, default filters, nav.
