@@ -26,4 +26,5 @@ export type MarketDetail = {
   facts: Fact[];                    // oracle, interest-rate model, LLTV, curator, created, address
   suppliers: Holder[];              // largest suppliers
   healthBands: Share[];             // collateral by health-factor band
+  healthCoverage?: { borrowers: number; pct: number };  // how much of the market's debt the sampled borrowers cover
 };

@@ -67,7 +67,7 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
           <MarketFacts facts={d.facts} />
           {d.healthBands.length ? (
             <Card>
-              <CardHeader><CardTitle>Collateral by health factor</CardTitle><CardDescription>How much collateral sits close to liquidation. The band below 1.05 is what a small price move would clear.</CardDescription></CardHeader>
+              <CardHeader><CardTitle>Collateral by health factor</CardTitle><CardDescription>How much collateral sits close to liquidation. The band below 1.05 is what a small price move would clear.{d.healthCoverage ? ` Sampled from the ${count(d.healthCoverage.borrowers)} largest borrowers, ${pct(d.healthCoverage.pct, 0)} of the market's debt.` : ''}</CardDescription></CardHeader>
               <CardContent className="px-2"><BarChart data={d.healthBands} x="name" series={[{ key: 'value', label: 'Collateral' }]} unit="usd" horizontal labels height={200} categoryWidth={80} /></CardContent>
             </Card>
           ) : null}

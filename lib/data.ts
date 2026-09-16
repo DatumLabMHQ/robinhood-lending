@@ -8,7 +8,7 @@ import type { FrameData } from './platform';
 export { platformStatus, showKit } from './platform';
 import { num, usd } from './format';
 import { chainLogo, chainName, protocolLogo } from './chains';
-import type { Market, MarketDetail, Overview, Point, Share } from './types';
+import type { Holder, Market, MarketDetail, Overview, Point, Share } from './types';
 
 const F = config.fields;
 const frac = new Set(config.fractions);
@@ -90,8 +90,9 @@ export const loadOverview = cache(async (): Promise<Overview> => {
   };
 });
 
-/** One market for the detail page: its own daily rows for the trend window. Holders and health
- *  bands need resources the platform does not expose yet, so they stay empty and their cards hide. */
+/** One market for the detail page: its own daily rows for the trend window, plus the largest suppliers
+ *  and the health-factor bands from the positions sample when the platform serves it (otherwise the
+ *  reads fail quietly, the lists stay empty and their cards hide). */
 export const loadMarket = cache(async (id: string): Promise<MarketDetail | null> => {
   if (!hasKey()) return sampleMarket(id);
   const o = await loadOverview();
@@ -116,7 +117,20 @@ export const loadMarket = cache(async (id: string): Promise<MarketDetail | null>
     { label: 'Chain', value: market.chain },
     { label: 'Market address', value: market.address ?? 'n/a' },
   ];
-  return { asOf: o.asOf, sample: false, market, history, rates, facts, suppliers: [], healthBands: [] };
+  // Largest suppliers and collateral by health-factor band, from morpho/positions and morpho/health.
+  let suppliers: Holder[] = [], healthBands: Share[] = [], healthCoverage: MarketDetail['healthCoverage'];
+  const pos = config.resources.positions, hl = config.resources.health;
+  const [p, h] = await Promise.all([
+    query(pos.product, pos.name, { [F.chain]: chain, [F.id]: marketId, side: 'supply', limit: 20 }).catch(() => null),
+    query(hl.product, hl.name, { [F.chain]: chain, [F.id]: marketId, limit: 1 }).catch(() => null),
+  ]);
+  if (p) suppliers = p.rows.filter((r) => num(r.supply_assets_usd) > 0).slice(0, 10).map((r) => ({ address: String(r.user_address ?? ''), supplied: num(r.supply_assets_usd), share: num(r.share_of_market_pct) }));
+  const b = h?.rows[0];
+  if (b && num(b.borrowers_tracked) > 0) {
+    healthBands = ([['Below 1.05', 'hf_below_1_05_usd'], ['1.05 to 1.25', 'hf_1_05_to_1_25_usd'], ['1.25 to 1.5', 'hf_1_25_to_1_5_usd'], ['1.5 to 2', 'hf_1_5_to_2_usd'], ['Above 2', 'hf_above_2_usd']] as const).map(([name, key]) => ({ name, value: num(b[key]) }));
+    healthCoverage = { borrowers: num(b.borrowers_tracked), pct: num(b.borrow_coverage_pct) };
+  }
+  return { asOf: o.asOf, sample: false, market, history, rates, facts, suppliers, healthBands, healthCoverage };
 });
 
 // ── What the frame needs from this dashboard (lib/platform.ts FrameData) ──
