@@ -1,42 +1,51 @@
-// Reads for this dashboard, all through datum-api. Kept in one place so a page is only layout.
-import { config, CHAIN_ID, CHAIN_SLUG } from '@/datum.config';
-import { query, num } from '@/lib/datum';
+// Reads specific to this dashboard: vaults on the chain and DefiLlama context for the whole chain.
+// Dashboard file (not a kit file). Shapes stay small so the pages are only layout.
+import { cache } from 'react';
+import { config } from '@/datum.config';
+import { hasKey, query } from './datum';
+import { num } from './format';
+import { SAMPLE_AS_OF } from './sample';
+import type { Point, Share } from './types';
 
-export type Market = Record<string, unknown> & { market_id: string; collateral_symbol: string; loan_symbol: string; supply_assets_usd: number; borrow_assets_usd: number; collateral_assets_usd: number; utilization: number; supply_apy: number; borrow_apy: number; lltv: number; listed: boolean; day: string };
-export type Vault = Record<string, unknown> & { vault_address: string; name: string; symbol: string; asset_symbol: string; total_assets_usd: number; net_apy: number; apy: number; fee_pct: number; curator: string; vault_version: number; listed: boolean };
+export type Vault = { id: string; name: string; symbol: string; asset: string; version: number; tvl: number; apy: number; netApy: number; fee: number; idle: number; curator: string; address: string };
 
-export async function listedMarkets() {
-  const r = await query('morpho', 'markets', { chain_id: CHAIN_ID, listed: true, limit: 200 });
-  return { day: r.day, as_of: r.as_of, rows: r.rows as Market[] };
+const isoDaysAgo = (n: number, from = new Date()) => { const d = new Date(from); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
+
+/** Listed vaults on the chain, largest first. */
+export const loadVaults = cache(async (): Promise<{ asOf: string; vaults: Vault[] }> => {
+  if (!hasKey()) return sampleVaults();
+  const v = config.resources.vaults;
+  const r = await query(v.product, v.name, { ...v.filters, limit: 500 });
+  const vaults: Vault[] = r.rows.map((x) => ({
+    id: String(x.vault_address ?? ''), name: String(x.name ?? ''), symbol: String(x.symbol ?? ''), asset: String(x.asset_symbol ?? ''), version: num(x.vault_version),
+    tvl: num(x.total_assets_usd), apy: num(x.apy), netApy: num(x.net_apy), fee: num(x.fee_pct), idle: num(x.idle_assets_usd),
+    curator: String(x.curator ?? x.curator_names ?? 'n/a'), address: String(x.vault_address ?? ''),
+  })).sort((a, b) => b.tvl - a.tvl);
+  return { asOf: (r.day ?? '').slice(0, 10), vaults };
+});
+
+/** DefiLlama's view of lending on the chain: every protocol it tracks, latest day and a 400-day total. */
+export const loadChain = cache(async (): Promise<{ asOf: string; byProtocol: Share[]; series: Point[] }> => {
+  if (!hasKey()) return sampleChain();
+  const c = config.resources.chainTvl;
+  const r = await query(c.product, c.name, { ...c.filters, since: isoDaysAgo(400), limit: 5000 });
+  const byDay = new Map<string, number>(); let latest = '';
+  for (const x of r.rows) { const d = String(x.day).slice(0, 10); byDay.set(d, (byDay.get(d) ?? 0) + num(x.tvl_usd)); if (d > latest) latest = d; }
+  const byProtocol: Share[] = r.rows.filter((x) => String(x.day).slice(0, 10) === latest).map((x) => ({ name: String(x.slug), value: num(x.tvl_usd) })).sort((a, b) => b.value - a.value);
+  const series: Point[] = [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, tvl]) => ({ day, tvl }));
+  return { asOf: latest, byProtocol, series };
+});
+
+// Sample data for a run without a key, labelled as such by the page frame.
+function sampleVaults(): { asOf: string; vaults: Vault[] } {
+  const rows: [string, string, string, number, number, number, string][] = [
+    ['Steakhouse USDG', 'steakUSDG', 'USDG', 2, 458.9e6, 3.64, 'Steakhouse'], ['Gauntlet USDC Prime', 'gtUSDCp', 'USDC', 1, 212.4e6, 4.02, 'Gauntlet'],
+    ['Re7 WETH', 're7WETH', 'WETH', 1, 88.1e6, 2.31, 'Re7'], ['Block Analitica USDT', 'baUSDT', 'USDT', 2, 41.7e6, 3.9, 'Block Analitica'],
+  ];
+  return { asOf: SAMPLE_AS_OF, vaults: rows.map(([name, symbol, asset, version, tvl, netApy, curator], i) => ({ id: `0xbeef${i}`, name, symbol, asset, version, tvl, apy: netApy + 0.3, netApy, fee: version === 2 ? 0 : 10, idle: tvl * 0.06, curator, address: `0xbeef${i}` })) };
 }
-export async function allMarkets() {
-  const r = await query('morpho', 'markets', { chain_id: CHAIN_ID, limit: 500 });
-  return { day: r.day, rows: r.rows as Market[] };
+function sampleChain(): { asOf: string; byProtocol: Share[]; series: Point[] } {
+  const days = 120; const series: Point[] = []; let v = 380e6;
+  for (let i = days; i >= 0; i--) { v *= 1 + (Math.sin(i / 9) * 0.004 + 0.0025); const d = new Date(SAMPLE_AS_OF + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - i); series.push({ day: d.toISOString().slice(0, 10), tvl: Math.round(v) }); }
+  return { asOf: SAMPLE_AS_OF, byProtocol: [{ name: 'morpho-blue', value: 525.4e6 }, { name: 'aave-v3', value: 61.2e6 }, { name: 'compound-v3', value: 18.9e6 }], series };
 }
-export async function listedVaults() {
-  const r = await query('morpho', 'vaults', { chain_id: CHAIN_ID, listed: true, limit: 200 });
-  return { day: r.day, as_of: r.as_of, rows: r.rows as Vault[] };
-}
-/** Daily supply and borrow totals for listed markets on the chain, since the platform started (4 Sep 2026). */
-export async function marketHistory(days = 120) {
-  const since = new Date(Date.now() - days * 86400e3).toISOString().slice(0, 10);
-  const r = await query('morpho', 'markets', { chain_id: CHAIN_ID, listed: true, since, limit: 5000 });
-  const byDay = new Map<string, { supply: number; borrow: number; markets: number }>();
-  for (const m of r.rows as Market[]) {
-    const d = String(m.day).slice(0, 10); const cur = byDay.get(d) ?? { supply: 0, borrow: 0, markets: 0 };
-    cur.supply += num(m.supply_assets_usd); cur.borrow += num(m.borrow_assets_usd); cur.markets += 1; byDay.set(d, cur);
-  }
-  return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, v]) => ({ day, ...v }));
-}
-/** DefiLlama's per-protocol TVL on the chain: the reconciliation figure and the only series that predates the platform. */
-export async function chainProtocols(days = 400) {
-  const since = new Date(Date.now() - days * 86400e3).toISOString().slice(0, 10);
-  const r = await query('defillama', 'tvl', { chain: CHAIN_SLUG, since, limit: 5000 });
-  const rows = r.rows as { slug: string; day: string; tvl_usd: number; borrowed_usd: number | null }[];
-  const latestDay = rows.reduce((m, x) => (String(x.day) > m ? String(x.day) : m), '');
-  const latest = rows.filter((x) => String(x.day) === latestDay).sort((a, b) => num(b.tvl_usd) - num(a.tvl_usd));
-  const series = new Map<string, number>();
-  for (const x of rows) series.set(String(x.day).slice(0, 10), (series.get(String(x.day).slice(0, 10)) ?? 0) + num(x.tvl_usd));
-  return { latestDay: latestDay.slice(0, 10), latest, total: [...series.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, tvl]) => ({ day, tvl })) };
-}
-export const chainId = CHAIN_ID; export const cfg = config;

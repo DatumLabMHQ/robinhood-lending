@@ -1,52 +1,103 @@
-/* Datum dashboard design system. Tokens first, components after. Both themes, tabular numbers. */
-:root {
-  --ground: #F7F6F2; --panel: #FFFFFF; --panel-2: #EEEDE6; --ink: #1A1D22; --muted: #5E6672; --rule: #DAD9D0;
-  --accent: #1F6F5C; --accent-ink: #FFFFFF; --accent-soft: #DCEBE5; --good: #2E7D5B; --warn: #B8861B; --bad: #A5433A;
-  --serif: "Source Serif 4", Georgia, serif; --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; --mono: "IBM Plex Mono", Menlo, monospace;
-  --radius: 8px; --max: 1180px;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --ground: #14171B; --panel: #1B1F24; --panel-2: #23282E; --ink: #E7E8E3; --muted: #A3AAB3; --rule: #333941;
-  --accent: #6FC1A8; --accent-ink: #0F1A16; --accent-soft: #1E3A32; --good: #6FC49A; --warn: #D9A93F; --bad: #E08A82;
-} }
-:root[data-theme="dark"] {
-  --ground: #14171B; --panel: #1B1F24; --panel-2: #23282E; --ink: #E7E8E3; --muted: #A3AAB3; --rule: #333941;
-  --accent: #6FC1A8; --accent-ink: #0F1A16; --accent-soft: #1E3A32; --good: #6FC49A; --warn: #D9A93F; --bad: #E08A82;
-}
-* { box-sizing: border-box; }
-html, body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
-a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
-.shell { max-width: var(--max); margin: 0 auto; padding: 28px 24px 80px; }
-.topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 22px; }
-.brand { font-family: var(--serif); font-size: 1.55rem; font-weight: 600; letter-spacing: -0.01em; }
-.brand small { font-family: var(--sans); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-left: 12px; }
-.nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.9rem; }
-.nav a { color: var(--muted); padding: 4px 2px; border-bottom: 2px solid transparent; }
-.nav a.on { color: var(--ink); border-color: var(--accent); }
-.meta { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.pill { display: inline-block; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 500; vertical-align: middle; }
-.pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
-.pill.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
-h1 { font-family: var(--serif); font-size: 1.9rem; font-weight: 600; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
-h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin: 34px 0 10px; }
-.lede { color: var(--muted); max-width: 70ch; margin: 0 0 22px; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0 0 22px; }
-.kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 14px; }
-.kpi .label { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.kpi .value { font-family: var(--serif); font-size: 1.7rem; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; margin-top: 2px; }
-.kpi .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; }
-.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
-.panel-head h2 { margin: 0; font-size: 1.05rem; }
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
-th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; white-space: nowrap; }
-th { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tr:hover td { background: var(--panel-2); }
-.note { font-size: 0.82rem; color: var(--muted); }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
-.chart { height: 260px; }
-.foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.78rem; color: var(--muted); }
+@import "tailwindcss";
+@import "tw-animate-css";
 
-.draft-banner { background: color-mix(in srgb, var(--warn) 16%, transparent); border: 1px solid var(--warn); color: var(--ink); border-radius: var(--radius); padding: 8px 12px; font-size: 0.85rem; margin: 0 0 18px; }
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────
+   Datum design system. This file is tokens only. First the Datum names
+   (--bg, --surface, --fg, --chart-n, --chain-*, --brand-blue), then the
+   shadcn/ui variables mapped onto them, so every shadcn component and
+   chart wears the Datum look with no per-component CSS. Layout and
+   components are Tailwind utilities in the .tsx files; there are no
+   custom classes here on purpose. One aesthetic: Inter everywhere
+   including numbers (tabular figures), sentence case, colour for data
+   rather than chrome, light and dark through the tokens.
+   ───────────────────────────────────────────────────────────────────── */
+:root {
+  --bg: #F6F5F2; --bg-2: #EFEEE9; --surface: #FFFFFF; --surface-2: #FBFAF7;
+  --fg: #111214; --fg-muted: #6B6E77; --fg-dim: #9599A1;
+  --line: rgba(17, 18, 20, 0.08); --line-strong: rgba(17, 18, 20, 0.14); --hover: rgba(17, 18, 20, 0.04);
+
+  --orange: #FF6B35; --orange-soft: rgba(255, 107, 53, 0.10);
+  --brand-blue: #4A6CF7;
+  --green: #0F9D58; --green-soft: rgba(15, 157, 88, 0.12);
+  --red: #D6322E; --red-soft: rgba(214, 50, 46, 0.10);
+  --yellow: #D97706; --yellow-soft: rgba(217, 119, 6, 0.12);
+  --blue: #3B5FE0; --purple: #9B4AE0; --cyan: #0090B2;
+
+  /* Chart series, in order. Multi-series charts take these unless a category map is given. */
+  --chart-1: #3B5FE0; --chart-2: #0F9D58; --chart-3: #D97706; --chart-4: #9B4AE0;
+  --chart-5: #0090B2; --chart-6: #FF6B35; --chart-7: #D81B7A; --chart-8: #4F46E5;
+
+  /* Chain brand colours, the same in both themes. */
+  --chain-ethereum: #627EEA; --chain-base: #0052FF; --chain-arbitrum: #28A0F0; --chain-avalanche: #E84142;
+  --chain-plume: #C8A973; --chain-binance: #F0B90B; --chain-optimism: #FF0420;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.25);
+  --radius: 12px; --panel-pad: 22px; --grid-gap: 18px; --max: 1280px;
+
+  /* shadcn/ui variables on the tokens above */
+  --background: var(--bg); --foreground: var(--fg);
+  --card: var(--surface); --card-foreground: var(--fg);
+  --popover: var(--surface); --popover-foreground: var(--fg);
+  --primary: var(--fg); --primary-foreground: var(--surface);
+  --secondary: var(--bg-2); --secondary-foreground: var(--fg);
+  --muted: var(--bg-2); --muted-foreground: var(--fg-muted);
+  --accent: var(--bg-2); --accent-foreground: var(--fg);
+  --destructive: var(--red);
+  --border: var(--line); --input: var(--line-strong); --ring: var(--brand-blue);
+  --sidebar: var(--surface); --sidebar-foreground: var(--fg); --sidebar-primary: var(--fg); --sidebar-primary-foreground: var(--surface);
+  --sidebar-accent: var(--bg-2); --sidebar-accent-foreground: var(--fg); --sidebar-border: var(--line); --sidebar-ring: var(--brand-blue);
+}
+.dark {
+  --bg: #0C0D0F; --bg-2: #141518; --surface: #16171A; --surface-2: #1B1D21;
+  --fg: #ECEDEF; --fg-muted: #9094A0; --fg-dim: #5F636D;
+  --line: rgba(255, 255, 255, 0.07); --line-strong: rgba(255, 255, 255, 0.14); --hover: rgba(255, 255, 255, 0.04);
+  --orange-soft: rgba(255, 107, 53, 0.14);
+  --green: #2ECC71; --green-soft: rgba(46, 204, 113, 0.14);
+  --red: #FF5A5A; --red-soft: rgba(255, 90, 90, 0.14);
+  --yellow-soft: rgba(217, 119, 6, 0.18);
+  --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+@theme inline {
+  --color-background: var(--background); --color-foreground: var(--foreground);
+  --color-card: var(--card); --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover); --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5); --color-chart-6: var(--chart-6); --color-chart-7: var(--chart-7); --color-chart-8: var(--chart-8);
+  --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-border: var(--sidebar-border); --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8); --radius-3xl: calc(var(--radius) * 2.2); --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body { @apply bg-background text-foreground; font-family: var(--font-sans); font-size: 14px; line-height: 1.5; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+}
+
+/* Recharts 3.10 renders axis ticks under *-tick-value, which the shadcn wrapper's selector misses. */
+.recharts-cartesian-axis-tick-value, .recharts-polar-angle-axis-tick-value, .recharts-polar-radius-axis-tick-value { fill: var(--fg-muted); font-size: 11px; }
+.recharts-label-list text, text.recharts-label { fill: var(--fg-muted); font-size: 11px; }
+.recharts-cartesian-grid line, .recharts-polar-grid line, .recharts-polar-grid path, .recharts-polar-grid circle, .recharts-polar-grid polygon { stroke: var(--line); }
+.recharts-radial-bar-background-sector { fill: var(--bg-2); }
+.recharts-surface, .recharts-layer, .recharts-sector { outline: none; }
