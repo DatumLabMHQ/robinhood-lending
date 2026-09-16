@@ -2,7 +2,7 @@
 // (brief not signed off, reconciliation not logged). Nothing renders once the page is live.
 import { FlaskIcon, WarningIcon } from '@phosphor-icons/react/ssr';
 import { config } from '@/datum.config';
-import { platformStatus } from '@/lib/data';
+import { platformStatus } from '@/lib/platform';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export async function StatusBanner() {

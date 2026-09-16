@@ -1,5 +1,5 @@
 // Provenance, on every page: where the numbers come from and when they were taken.
-import { platformStatus } from '@/lib/data';
+import { platformStatus } from '@/lib/platform';
 
 export async function SiteFooter() {
   const s = await platformStatus();

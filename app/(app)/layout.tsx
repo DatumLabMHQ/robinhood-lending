@@ -5,13 +5,14 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StatusBanner } from '@/components/status-banner';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { loadOverview, platformStatus, showKit } from '@/lib/data';
+import { navBadges } from '@/lib/data';
+import { platformStatus, showKit } from '@/lib/platform';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const [o, s] = await Promise.all([loadOverview(), platformStatus()]);
+  const [badges, s] = await Promise.all([navBadges().catch(() => ({})), platformStatus()]);
   return (
     <SidebarProvider style={{ '--sidebar-width': 'calc(var(--spacing) * 64)', '--header-height': 'calc(var(--spacing) * 12)' } as React.CSSProperties}>
-      <AppSidebar variant="inset" marketCount={o.markets.length} showKit={showKit(s)} />
+      <AppSidebar variant="inset" badges={badges} showKit={showKit(s)} />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

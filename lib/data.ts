@@ -2,22 +2,13 @@
 // otherwise from lib/sample.ts, labelled as sample on every page.
 import { cache } from 'react';
 import { config } from '@/datum.config';
-import { hasKey, health, query } from './datum';
-import { sampleOverview, sampleMarket, SAMPLE_AS_OF } from './sample';
+import { hasKey, query } from './datum';
+import { sampleOverview, sampleMarket } from './sample';
+import type { FrameData } from './platform';
+export { platformStatus, showKit } from './platform';
 import { num, usd } from './format';
 import { chainLogo, chainName, protocolLogo } from './chains';
 import type { Market, MarketDetail, Overview, Point, Share } from './types';
-
-export type PlatformStatus = { sample: boolean; ok: boolean | null; asOf: string | null };
-
-/** The kit's own pages (chart guide) show in sample mode or when NEXT_PUBLIC_SHOW_KIT=true. */
-export const showKit = (s: PlatformStatus) => s.sample || process.env.NEXT_PUBLIC_SHOW_KIT === 'true';
-
-export const platformStatus = cache(async (): Promise<PlatformStatus> => {
-  if (!hasKey()) return { sample: true, ok: null, asOf: SAMPLE_AS_OF };
-  try { const h = await health(); return { sample: false, ok: h.ok, asOf: h.last_build ? h.last_build.slice(0, 16).replace('T', ' ') : null }; }
-  catch { return { sample: false, ok: null, asOf: null }; }
-});
 
 const F = config.fields;
 const frac = new Set(config.fractions);
@@ -127,3 +118,15 @@ export const loadMarket = cache(async (id: string): Promise<MarketDetail | null>
   ];
   return { asOf: o.asOf, sample: false, market, history, rates, facts, suppliers: [], healthBands: [] };
 });
+
+// ── What the frame needs from this dashboard (lib/platform.ts FrameData) ──
+/** Every market, for the cmd+k palette. */
+export const searchItems: FrameData['searchItems'] = async () => {
+  const o = await loadOverview();
+  return o.markets.map((m) => ({ label: `${m.collateral} / ${m.loan}`, href: `/markets/${m.id}`, hint: m.protocol }));
+};
+/** The market count next to Markets in the sidebar. */
+export const navBadges: FrameData['navBadges'] = async () => {
+  const o = await loadOverview();
+  return { '/markets': o.markets.length };
+};

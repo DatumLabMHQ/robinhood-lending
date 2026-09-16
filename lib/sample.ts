@@ -6,7 +6,8 @@ import type { Market, Point, Share, Overview, MarketDetail, Holder } from './typ
 
 function rng(seed: number) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
-export const SAMPLE_AS_OF = '2026-09-15';
+import { SAMPLE_AS_OF } from './platform';
+export { SAMPLE_AS_OF };
 const PROTOCOLS = ['Aave', 'Morpho', 'Compound'];
 const PROTOCOL_SLUG: Record<string, string> = { Aave: 'aave', Morpho: 'morpho-blue', Compound: 'compound-finance' };
 const CHAIN_IDS = [1, 8453, 42161, 10, 43114];

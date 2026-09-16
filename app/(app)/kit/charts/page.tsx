@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PageHeader } from '@/components/page-header';
 import { AreaChart, BarChart, DonutChart, LineChart, RadarChart, RadialChart } from '@/components/charts';
 import { notFound } from 'next/navigation';
-import { loadOverview, platformStatus, showKit } from '@/lib/data';
+import { loadOverview } from '@/lib/data';
+import { platformStatus, showKit } from '@/lib/platform';
 
 export const metadata = { title: 'Chart guide' };
 

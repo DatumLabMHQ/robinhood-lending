@@ -16,7 +16,7 @@ import {
 const ICONS: Record<string, React.ReactNode> = { '/': <SquaresFourIcon />, '/markets': <TableIcon />, '/vaults': <VaultIcon />, '/methodology': <BookOpenIcon /> };
 const KIT = [{ href: '/kit/charts', label: 'Chart guide', icon: <ChartLineUpIcon /> }];
 
-export function AppSidebar({ marketCount, showKit = false, ...props }: React.ComponentProps<typeof Sidebar> & { marketCount?: number; showKit?: boolean }) {
+export function AppSidebar({ badges = {}, showKit = false, ...props }: React.ComponentProps<typeof Sidebar> & { badges?: Record<string, number>; showKit?: boolean }) {
   const path = usePathname();
   const active = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
   return (
@@ -41,7 +41,7 @@ export function AppSidebar({ marketCount, showKit = false, ...props }: React.Com
                   <SidebarMenuButton tooltip={n.label} isActive={active(n.href)} render={<Link href={n.href} />}>
                     {ICONS[n.href] ?? <SquaresFourIcon />}<span>{n.label}</span>
                   </SidebarMenuButton>
-                  {n.href === '/markets' && marketCount ? <SidebarMenuBadge>{marketCount}</SidebarMenuBadge> : null}
+                  {badges[n.href] ? <SidebarMenuBadge>{badges[n.href]}</SidebarMenuBadge> : null}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
