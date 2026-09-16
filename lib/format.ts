@@ -14,6 +14,11 @@ export function pct(v: unknown, digits = 2): string {
   if (v === null || v === undefined || v === '') return NA;
   return `${num(v).toFixed(digits)}%`;
 }
+/** A unit price: never compact, two decimals, four below $10 (NAV-style tokens). Oracle prices, NAV, share prices. */
+export function price(v: unknown, digits = 2): string {
+  const n = num(v); if (!Number.isFinite(n) || v === null || v === undefined) return NA;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: digits, maximumFractionDigits: n !== 0 && Math.abs(n) < 10 ? 4 : digits }).format(n);
+}
 export function count(v: unknown, digits = 0): string {
   if (v === null || v === undefined || v === '') return NA;
   const n = num(v); const a = Math.abs(n);
