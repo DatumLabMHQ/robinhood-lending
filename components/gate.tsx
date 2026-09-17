@@ -13,8 +13,11 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 
 const KEY = 'datum_gate_unlocked';
+// What the reader does, as a list to pick from rather than a box to type in. Sent to the list as the Occupation field.
+const OCCUPATIONS = ['Analyst', 'Protocol founder or team', 'Investor or allocator', 'Trader', 'Researcher', 'Developer or engineer', 'Risk manager', 'Curator or vault manager', 'Journalist or writer', 'Student', 'Other'];
 const GATE: { enabled: boolean; free: string[] } = { enabled: true, free: ['/'], ...((config as { gate?: { enabled?: boolean; free?: string[] } }).gate ?? {}) };
 const isFree = (path: string) => GATE.free.some((f) => (f === '/' ? path === '/' : path === f || path.startsWith(f + '/')));
 const remembered = () => { try { return localStorage.getItem(KEY) === '1' || document.cookie.includes('datum_gate=1'); } catch { return false; } };
@@ -76,7 +79,13 @@ function GateDialog({ open, required }: { open: boolean; required: boolean }) {
         <form onSubmit={submit} className="flex flex-col gap-3">
           <div className="grid gap-1.5"><Label htmlFor="gate-name">Full name</Label><Input id="gate-name" autoComplete="name" placeholder="Ada Lovelace" {...field('name')} /></div>
           <div className="grid gap-1.5"><Label htmlFor="gate-email">Email</Label><Input id="gate-email" type="email" autoComplete="email" placeholder="name@company.com" {...field('email')} /></div>
-          <div className="grid gap-1.5"><Label htmlFor="gate-occupation">What you do</Label><Input id="gate-occupation" autoComplete="organization-title" placeholder="Analyst, protocol founder, investor" {...field('occupation')} /></div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="gate-occupation">What you do</Label>
+            <NativeSelect id="gate-occupation" required value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} disabled={status === 'loading'}>
+              <NativeSelectOption value="" disabled>Choose one</NativeSelectOption>
+              {OCCUPATIONS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}
+            </NativeSelect>
+          </div>
           <Button type="submit" className="mt-1" disabled={status === 'loading'}>{status === 'loading' ? <><SpinnerGapIcon className="animate-spin" />Opening</> : 'Open the dashboard'}</Button>
           {error ? <p className="text-center text-xs text-destructive">{error}</p> : null}
           <p className="text-center text-xs text-muted-foreground">Your details join the Datum Labs list. No spam; unsubscribe any time.</p>
