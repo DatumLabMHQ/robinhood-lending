@@ -41,7 +41,8 @@ export function Gate({ children }: { children: React.ReactNode }) {
   const required = gated && g!.unlocked === false;
   return (
     <>
-      <div inert={gated || undefined} aria-hidden={gated || undefined} className={gated ? 'pointer-events-none select-none blur-sm opacity-60' : undefined}>{children}</div>
+      {/* The wrapper keeps the page's own vertical rhythm (the same column and gaps as the layout), so wrapping changes nothing when signed in. */}
+      <div data-slot="page" inert={gated || undefined} aria-hidden={gated || undefined} className={`flex flex-col gap-4 md:gap-6${gated ? ' pointer-events-none select-none blur-sm opacity-60' : ''}`}>{children}</div>
       {g ? <GateDialog open={required || (g.open && g.unlocked !== true)} required={required} /> : null}
     </>
   );
