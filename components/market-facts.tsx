@@ -8,6 +8,9 @@ import { AssetAvatar } from '@/components/asset-avatar';
 import { address, pct, usd } from '@/lib/format';
 import type { Fact, Holder } from '@/lib/types';
 
+// Addresses, ids and other long unbroken values are shortened with the full value on hover, so a fact never wraps.
+const isLong = (v: string) => /^0x[0-9a-fA-F]{16,}$/.test(v) || (v.length > 28 && !v.includes(' '));
+
 const ICON: Record<string, React.ReactNode> = {
   'Liquidation LTV': <ShieldCheckIcon />, Oracle: <EyeIcon />, 'Interest rate model': <PercentIcon />, Curator: <UsersThreeIcon />, Created: <CalendarBlankIcon />, 'Market address': <HashIcon />,
 };
@@ -27,7 +30,7 @@ export function MarketFacts({ facts }: { facts: Fact[] }) {
                   <ItemTitle>{f.label}</ItemTitle>
                   <ItemDescription>{f.note ?? ''}</ItemDescription>
                 </ItemContent>
-                <span className="ml-auto shrink-0 text-sm font-medium tabular-nums">{f.label === 'Market address' ? <span className="font-mono text-xs">{address(f.value)}</span> : f.value}</span>
+                <span className="ml-auto shrink-0 text-sm font-medium tabular-nums" title={isLong(f.value) ? f.value : undefined}>{isLong(f.value) ? <span className="font-mono text-xs">{address(f.value, 6)}</span> : f.value}</span>
               </Item>
             </div>
           ))}
