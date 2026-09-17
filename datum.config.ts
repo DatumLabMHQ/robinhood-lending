@@ -45,6 +45,9 @@ export const config = {
   // How far back the overview trend goes, and how often it samples our own count (one API call
   // per point, so weekly points keep it to about a dozen calls).
   trend: { days: 90, stepDays: 7 },
+  // The sign-in gate: the overview is open to everyone; every other page asks once for a name, an email
+  // and an occupation (kept on that browser). Leads join the Datum Labs list through app/api/gate.
+  gate: { enabled: true, free: ['/'] as string[] },
   nav: [
     { href: '/', label: 'Overview' },
     { href: '/markets', label: 'Markets' },

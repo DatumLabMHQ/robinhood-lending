@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { CommandMenu } from '@/components/command-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SignInButton } from '@/components/gate';
 
 export async function SiteHeader() {
   const [s, items] = await Promise.all([platformStatus(), searchItems().catch(() => [])]);
@@ -21,6 +22,7 @@ export async function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           <CommandMenu items={items} />
           <Badge variant="outline" className={`hidden sm:inline-flex ${status.cls}`}><span className="size-1.5 rounded-full bg-current" />{status.label}</Badge>
+          <SignInButton />
           <ThemeToggle />
         </div>
       </div>
