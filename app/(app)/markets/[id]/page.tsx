@@ -58,6 +58,23 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             {stat('Borrow APY', pct(m.borrow_apy), 'annualised')}
           </div>
           <MarketCharts history={d.history} rates={d.rates} asOf={d.asOf} />
+          {/* Data cards sit in the main column, two up, so the two columns end near each other; the aside keeps only the dial and the facts. */}
+          {d.healthBands.length || d.suppliers.length ? (
+            <div className="grid grid-cols-1 gap-4 @3xl/main:grid-cols-2">
+              {d.healthBands.length ? (
+                <Card>
+                  <CardHeader><CardTitle>Collateral by health factor</CardTitle><CardDescription>How much collateral sits close to liquidation. The band below 1.05 is what a small price move would clear.{d.healthCoverage ? ` Sampled from the ${count(d.healthCoverage.borrowers)} largest borrowers, ${pct(d.healthCoverage.pct, 0)} of the market's debt.` : ''}</CardDescription></CardHeader>
+                  <CardContent className="px-2"><BarChart data={d.healthBands} x="name" series={[{ key: 'value', label: 'Collateral' }]} unit="usd" horizontal labels height={220} categoryWidth={80} /></CardContent>
+                </Card>
+              ) : null}
+              {d.suppliers.length ? (
+                <div className="flex flex-col gap-2">
+                  <MarketHolders suppliers={d.suppliers} />
+                  <p className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground"><WalletIcon />{count(d.suppliers.length)} largest suppliers hold {pct(d.suppliers.reduce((a, h) => a + h.share, 0), 0)} of supply.</p>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </>}
         aside={<>
           <Card>
@@ -65,14 +82,6 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             <CardContent><RadialChart value={m.utilization} label="utilised" height={180} color={m.risk === 'high' ? 'var(--red)' : m.risk === 'moderate' ? 'var(--yellow)' : 'var(--chart-1)'} /></CardContent>
           </Card>
           <MarketFacts facts={d.facts} />
-          {d.healthBands.length ? (
-            <Card>
-              <CardHeader><CardTitle>Collateral by health factor</CardTitle><CardDescription>How much collateral sits close to liquidation. The band below 1.05 is what a small price move would clear.{d.healthCoverage ? ` Sampled from the ${count(d.healthCoverage.borrowers)} largest borrowers, ${pct(d.healthCoverage.pct, 0)} of the market's debt.` : ''}</CardDescription></CardHeader>
-              <CardContent className="px-2"><BarChart data={d.healthBands} x="name" series={[{ key: 'value', label: 'Collateral' }]} unit="usd" horizontal labels height={200} categoryWidth={80} /></CardContent>
-            </Card>
-          ) : null}
-          <MarketHolders suppliers={d.suppliers} />
-          {d.suppliers.length ? <p className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground"><WalletIcon />{count(d.suppliers.length)} largest suppliers hold {pct(d.suppliers.reduce((a, h) => a + h.share, 0), 0)} of supply.</p> : null}
         </>}
       />
     </>
