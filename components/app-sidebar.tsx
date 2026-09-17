@@ -8,7 +8,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowSquareOutIcon, BankIcon, BookOpenIcon, CaretRightIcon, ChartLineUpIcon, CoinsIcon, DropIcon, GlobeHemisphereWestIcon, LightningIcon, SquaresFourIcon, StackIcon, TableIcon, UsersThreeIcon, VaultIcon } from '@phosphor-icons/react';
+import { ArrowSquareOutIcon, ArrowsLeftRightIcon, BankIcon, BookOpenIcon, CaretRightIcon, ChartLineUpIcon, CoinsIcon, DropIcon, GlobeHemisphereWestIcon, LightningIcon, SquaresFourIcon, StackIcon, TableIcon, TagIcon, UsersThreeIcon, VaultIcon } from '@phosphor-icons/react';
 import { config } from '@/datum.config';
 import { NAV_CHILDREN_MAX, type NavChild } from '@/lib/platform';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 
 // Icons by route. A dashboard's own routes fall back to the grid icon; add them here when they recur.
-const ICONS: Record<string, React.ReactNode> = { '/': <SquaresFourIcon />, '/markets': <TableIcon />, '/vaults': <VaultIcon />, '/horizon': <BankIcon />, '/assets': <CoinsIcon />, '/curators': <UsersThreeIcon />, '/chains': <GlobeHemisphereWestIcon />, '/pools': <DropIcon />, '/liquidations': <LightningIcon />, '/protocols': <StackIcon />, '/methodology': <BookOpenIcon /> };
+const ICONS: Record<string, React.ReactNode> = { '/': <SquaresFourIcon />, '/markets': <TableIcon />, '/vaults': <VaultIcon />, '/horizon': <BankIcon />, '/assets': <CoinsIcon />, '/curators': <UsersThreeIcon />, '/chains': <GlobeHemisphereWestIcon />, '/pools': <DropIcon />, '/reserves': <CoinsIcon />, '/tokens': <TagIcon />, '/flows': <ArrowsLeftRightIcon />, '/liquidations': <LightningIcon />, '/protocols': <StackIcon />, '/methodology': <BookOpenIcon /> };
 const KIT = [{ href: '/kit/charts', label: 'Chart guide', icon: <ChartLineUpIcon /> }];
 
 export function AppSidebar({ badges = {}, subnav = {}, showKit = false, ...props }: React.ComponentProps<typeof Sidebar> & { badges?: Record<string, number>; subnav?: Record<string, NavChild[]>; showKit?: boolean }) {
