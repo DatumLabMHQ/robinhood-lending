@@ -27,7 +27,7 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
   const m = d.market;
   const idle = m.supplied - m.borrowed;
   const stat = (label: string, value: string, sub: string) => (
-    <Card className="@container/card"><CardHeader><CardDescription>{label}</CardDescription><CardTitle className="text-2xl font-semibold tabular-nums">{value}</CardTitle><CardDescription>{sub}</CardDescription></CardHeader></Card>
+    <Card className="@container/card"><CardHeader><CardDescription>{label}</CardDescription><CardTitle className="text-2xl font-medium tracking-tight tabular-nums">{value}</CardTitle><CardDescription>{sub}</CardDescription></CardHeader></Card>
   );
   return (
     <>
@@ -36,7 +36,7 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
         <div className="flex flex-wrap items-center gap-3">
           <MarketPair collateral={m.collateral} loan={m.loan} logos={m.logos} className="size-9" />
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{m.collateral} / {m.loan}</h1>
+            <h1 className="font-serif text-[1.75rem] font-medium leading-tight tracking-tight">{m.collateral} / {m.loan}</h1>
             <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5"><AssetAvatar symbol={m.protocol} src={m.logos?.protocol} className="size-4" />{m.protocol}</span>
               <span>·</span>

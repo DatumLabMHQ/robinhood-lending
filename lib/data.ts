@@ -5,6 +5,7 @@ import { config } from '@/datum.config';
 import { hasKey, query } from './datum';
 import { sampleOverview, sampleMarket } from './sample';
 import type { FrameData } from './platform';
+import { loadVaults } from './robinhood';
 export { platformStatus, showKit } from './platform';
 import { num, usd } from './format';
 import { chainLogo, chainName, protocolLogo } from './chains';
@@ -143,4 +144,12 @@ export const searchItems: FrameData['searchItems'] = async () => {
 export const navBadges: FrameData['navBadges'] = async () => {
   const o = await loadOverview();
   return { '/markets': o.markets.length };
+};
+/** Every market under Markets and every vault under Vaults in the sidebar, largest first. */
+export const navChildren: FrameData['navChildren'] = async () => {
+  const [o, v] = await Promise.all([loadOverview(), loadVaults().catch(() => ({ vaults: [] }))]);
+  return {
+    '/markets': o.markets.map((m) => ({ label: `${m.collateral} / ${m.loan}`, href: `/markets/${m.id}` })),
+    '/vaults': v.vaults.map((x) => ({ label: x.name, href: '/vaults' })),
+  };
 };

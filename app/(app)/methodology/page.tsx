@@ -57,8 +57,8 @@ export default async function Methodology() {
           <CardContent>
             {r ? (
               <div className="grid grid-cols-1 gap-4 @2xl/main:grid-cols-[1fr_1fr_2fr]">
-                <div className="rounded-lg border bg-muted/40 p-4"><div className="text-xs text-muted-foreground">Our count, supplied</div><div className="mt-1 text-2xl font-semibold tabular-nums">{usd(r.ours)}</div><div className="mt-1 text-xs text-muted-foreground">as of {d.asOf}</div></div>
-                <div className="rounded-lg border bg-muted/40 p-4"><div className="text-xs text-muted-foreground">{r.theirsSource}</div><div className="mt-1 text-2xl font-semibold tabular-nums">{usd(r.theirs)}</div><div className="mt-1 text-xs text-muted-foreground">{r.theirs >= r.ours ? `${pct((r.theirs / r.ours - 1) * 100, 1)} above ours` : `${pct((1 - r.theirs / r.ours) * 100, 1)} below ours`}</div></div>
+                <div className="rounded-lg border bg-muted/40 p-4"><div className="text-xs text-muted-foreground">Our count, supplied</div><div className="mt-1 text-2xl font-medium tracking-tight tabular-nums">{usd(r.ours)}</div><div className="mt-1 text-xs text-muted-foreground">as of {d.asOf}</div></div>
+                <div className="rounded-lg border bg-muted/40 p-4"><div className="text-xs text-muted-foreground">{r.theirsSource}</div><div className="mt-1 text-2xl font-medium tracking-tight tabular-nums">{usd(r.theirs)}</div><div className="mt-1 text-xs text-muted-foreground">{r.theirs >= r.ours ? `${pct((r.theirs / r.ours - 1) * 100, 1)} above ours` : `${pct((1 - r.theirs / r.ours) * 100, 1)} below ours`}</div></div>
                 <p className="self-center text-sm text-muted-foreground">{r.note}</p>
               </div>
             ) : <p className="text-sm text-muted-foreground">No comparison source is configured for this product yet, so the headline stands alone. Add one under <span className="font-mono text-xs">resources.comparison</span> in datum.config.ts.</p>}

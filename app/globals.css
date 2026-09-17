@@ -7,58 +7,72 @@
    Datum design system. This file is tokens only. First the Datum names
    (--bg, --surface, --fg, --chart-n, --chain-*, --brand-blue), then the
    shadcn/ui variables mapped onto them, so every shadcn component and
-   chart wears the Datum look with no per-component CSS. Layout and
-   components are Tailwind utilities in the .tsx files; there are no
-   custom classes here on purpose. One aesthetic: Inter everywhere
-   including numbers (tabular figures), sentence case, colour for data
-   rather than chrome, light and dark through the tokens.
+   chart wears the Datum look with no per-component CSS. The values are
+   datumlab.xyz's design system v2 (sapphire, navy, cool neutrals): the
+   dashboards and the site are one brand. Layout and components are
+   Tailwind utilities in the .tsx files; there are no custom classes here
+   on purpose. One aesthetic: Geist for text and numbers (tabular figures),
+   Source Serif 4 for the one display line on a page, sentence case,
+   colour for data rather than chrome, light and dark through the tokens.
    ───────────────────────────────────────────────────────────────────── */
 :root {
-  --bg: #F6F5F2; --bg-2: #EFEEE9; --surface: #FFFFFF; --surface-2: #FBFAF7;
-  --fg: #111214; --fg-muted: #6B6E77; --fg-dim: #9599A1;
-  --line: rgba(17, 18, 20, 0.08); --line-strong: rgba(17, 18, 20, 0.14); --hover: rgba(17, 18, 20, 0.04);
+  /* Brand ramps, the same in both themes (site: --sapphire-*, --navy-*, --neutral-*). */
+  --sapphire-50: #EEF2FF; --sapphire-100: #DEE6FE; --sapphire-200: #C2CFFD; --sapphire-300: #9DB0FB; --sapphire-400: #7088F9;
+  --sapphire-500: #4A6CF7; --sapphire-600: #2E4FE0; --sapphire-700: #233EB8; --sapphire-900: #1B2C6E;
+  --navy-500: #1320A2; --navy-700: #000B78; --navy-900: #000640;
+  --neutral-0: #FFFFFF; --neutral-25: #FAFBFC; --neutral-50: #F5F7FA; --neutral-100: #ECEFF4; --neutral-200: #DDE2EB; --neutral-300: #C4CCD9;
+  --neutral-400: #9AA4B7; --neutral-500: #6B7688; --neutral-600: #4E5868; --neutral-900: #161A24; --neutral-950: #0B0E16;
 
-  --orange: #FF6B35; --orange-soft: rgba(255, 107, 53, 0.10);
-  --brand-blue: #4A6CF7;
-  --green: #0F9D58; --green-soft: rgba(15, 157, 88, 0.12);
-  --red: #D6322E; --red-soft: rgba(214, 50, 46, 0.10);
-  --yellow: #D97706; --yellow-soft: rgba(217, 119, 6, 0.12);
-  --blue: #3B5FE0; --purple: #9B4AE0; --cyan: #0090B2;
+  /* Light: Platinum page, white surfaces, cool grey text. */
+  --bg: var(--neutral-50); --bg-2: var(--neutral-100); --surface: var(--neutral-0); --surface-2: var(--neutral-25);
+  --fg: var(--neutral-900); --fg-muted: var(--neutral-500); --fg-dim: var(--neutral-400);
+  --line: var(--neutral-200); --line-strong: var(--neutral-300); --hover: var(--neutral-100);
 
-  /* Chart series, in order. Multi-series charts take these unless a category map is given. */
-  --chart-1: #3B5FE0; --chart-2: #0F9D58; --chart-3: #D97706; --chart-4: #9B4AE0;
-  --chart-5: #0090B2; --chart-6: #FF6B35; --chart-7: #D81B7A; --chart-8: #4F46E5;
+  --brand-blue: var(--sapphire-500);
+  --green: #1FA463; --green-soft: rgba(31, 164, 99, 0.12);
+  --red: #E5484D; --red-soft: rgba(229, 72, 77, 0.10);
+  --yellow: #F59E0B; --yellow-soft: rgba(245, 158, 11, 0.14);
+  --blue: var(--sapphire-500); --purple: #7C5CE0; --cyan: #0EA5E9; --orange: #FF6B35;
+
+  /* Chart series, in the site's order: sapphire, light sapphire, cyan, amber, green, then navy, red, grey. */
+  --chart-1: var(--sapphire-500); --chart-2: var(--sapphire-300); --chart-3: #0EA5E9; --chart-4: #F59E0B;
+  --chart-5: #1FA463; --chart-6: var(--navy-500); --chart-7: #E5484D; --chart-8: var(--neutral-500);
 
   /* Chain brand colours, the same in both themes. */
   --chain-ethereum: #627EEA; --chain-base: #0052FF; --chain-arbitrum: #28A0F0; --chain-avalanche: #E84142;
   --chain-plume: #C8A973; --chain-binance: #F0B90B; --chain-optimism: #FF0420;
 
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.25);
+  --shadow-sm: 0 1px 2px rgba(11, 14, 22, 0.06);
+  --shadow-md: 0 4px 12px rgba(11, 14, 22, 0.08), 0 2px 4px rgba(11, 14, 22, 0.04);
+  --shadow-lg: 0 12px 28px rgba(11, 14, 22, 0.12), 0 4px 8px rgba(11, 14, 22, 0.05);
   --radius: 12px; --panel-pad: 22px; --grid-gap: 18px; --max: 1280px;
 
-  /* shadcn/ui variables on the tokens above */
+  /* shadcn/ui variables on the tokens above (the site maps its palette the same way) */
   --background: var(--bg); --foreground: var(--fg);
   --card: var(--surface); --card-foreground: var(--fg);
   --popover: var(--surface); --popover-foreground: var(--fg);
-  --primary: var(--fg); --primary-foreground: var(--surface);
+  --primary: var(--sapphire-500); --primary-foreground: var(--neutral-0);
   --secondary: var(--bg-2); --secondary-foreground: var(--fg);
   --muted: var(--bg-2); --muted-foreground: var(--fg-muted);
-  --accent: var(--bg-2); --accent-foreground: var(--fg);
+  --accent: var(--sapphire-50); --accent-foreground: var(--sapphire-700);
   --destructive: var(--red);
-  --border: var(--line); --input: var(--line-strong); --ring: var(--brand-blue);
-  --sidebar: var(--surface); --sidebar-foreground: var(--fg); --sidebar-primary: var(--fg); --sidebar-primary-foreground: var(--surface);
-  --sidebar-accent: var(--bg-2); --sidebar-accent-foreground: var(--fg); --sidebar-border: var(--line); --sidebar-ring: var(--brand-blue);
+  --border: var(--line); --input: var(--line-strong); --ring: rgba(74, 108, 247, 0.5);
+  --sidebar: var(--surface); --sidebar-foreground: var(--fg); --sidebar-primary: var(--sapphire-500); --sidebar-primary-foreground: var(--neutral-0);
+  --sidebar-accent: var(--sapphire-50); --sidebar-accent-foreground: var(--sapphire-700); --sidebar-border: var(--line); --sidebar-ring: rgba(74, 108, 247, 0.5);
 }
 .dark {
-  --bg: #0C0D0F; --bg-2: #141518; --surface: #16171A; --surface-2: #1B1D21;
-  --fg: #ECEDEF; --fg-muted: #9094A0; --fg-dim: #5F636D;
-  --line: rgba(255, 255, 255, 0.07); --line-strong: rgba(255, 255, 255, 0.14); --hover: rgba(255, 255, 255, 0.04);
-  --orange-soft: rgba(255, 107, 53, 0.14);
-  --green: #2ECC71; --green-soft: rgba(46, 204, 113, 0.14);
-  --red: #FF5A5A; --red-soft: rgba(255, 90, 90, 0.14);
-  --yellow-soft: rgba(217, 119, 6, 0.18);
+  /* Dark: the brand navy, not a grey. Surfaces step up in the same hue; text is the light neutral. */
+  --bg: #050826; --bg-2: #0C1140; --surface: #0A0E35; --surface-2: #101649;
+  --fg: #EEF2FF; --fg-muted: #A3AEC8; --fg-dim: #6B7688;
+  --line: rgba(157, 176, 251, 0.14); --line-strong: rgba(157, 176, 251, 0.26); --hover: rgba(157, 176, 251, 0.07);
+  --green: #34C77B; --green-soft: rgba(52, 199, 123, 0.16);
+  --red: #F26A6E; --red-soft: rgba(242, 106, 110, 0.16);
+  --yellow: #FBBF24; --yellow-soft: rgba(251, 191, 36, 0.18);
+  --chart-2: var(--sapphire-300); --chart-6: var(--sapphire-400); --chart-8: var(--neutral-400);
+  --primary: var(--sapphire-400); --primary-foreground: var(--navy-900);
+  --accent: rgba(74, 108, 247, 0.18); --accent-foreground: var(--sapphire-200);
+  --sidebar-primary: var(--sapphire-400); --sidebar-primary-foreground: var(--navy-900);
+  --sidebar-accent: rgba(74, 108, 247, 0.18); --sidebar-accent-foreground: var(--sapphire-200);
   --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.7);
@@ -79,9 +93,10 @@
   --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-border: var(--sidebar-border); --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
-  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8); --radius-3xl: calc(var(--radius) * 2.2); --radius-4xl: calc(var(--radius) * 2.6);
 }

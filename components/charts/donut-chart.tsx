@@ -37,7 +37,7 @@ export function DonutChart({ items, unit = 'usd', height = 220, centerLabel = 't
               const cx = Number(viewBox.cx), cy = Number(viewBox.cy);
               return (
                 <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-                  <tspan x={cx} y={cy - 4} className="fill-foreground text-xl font-semibold">{focus ? f(focus.value) : f(total)}</tspan>
+                  <tspan x={cx} y={cy - 4} className="fill-foreground text-xl font-medium">{focus ? f(focus.value) : f(total)}</tspan>
                   <tspan x={cx} y={cy + 16} className="fill-muted-foreground text-[11px]">{focus ? `${((focus.value / total) * 100).toFixed(0)}%` : centerLabel}</tspan>
                 </text>
               );

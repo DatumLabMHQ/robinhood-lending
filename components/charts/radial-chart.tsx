@@ -26,7 +26,7 @@ export function RadialChart({ value, max = 100, label, height = 200, color = 'va
           <R.Label content={({ viewBox }) => {
             if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null;
             const cx = Number(viewBox.cx), cy = Number(viewBox.cy);
-            return <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"><tspan x={cx} y={cy - 4} className="fill-foreground text-xl font-semibold">{f(value)}</tspan><tspan x={cx} y={cy + 16} className="fill-muted-foreground text-[11px]">{label}</tspan></text>;
+            return <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"><tspan x={cx} y={cy - 4} className="fill-foreground text-xl font-medium">{f(value)}</tspan><tspan x={cx} y={cy + 16} className="fill-muted-foreground text-[11px]">{label}</tspan></text>;
           }} />
         </R.PolarRadiusAxis>
       </R.RadialBarChart>

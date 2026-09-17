@@ -1,23 +1,27 @@
 'use client';
 // The left pane: shadcn Sidebar, inset variant, collapsing to icons (cmd+b). Navigation is data:
-// pages come from datum.config.ts; the kit's own pages (KIT) show only in sample mode or with
-// NEXT_PUBLIC_SHOW_KIT=true, so client dashboards never show kit internals. Icons are Phosphor only.
+// pages come from datum.config.ts, and a page's rows (every market, every vault...) come from the
+// dashboard's navChildren() and open under it as a shadcn Collapsible: the label goes to the page,
+// the chevron opens the list, and the list opens by itself on that page. The kit's own pages (KIT)
+// show only in sample mode or with NEXT_PUBLIC_SHOW_KIT=true. Icons are Phosphor only.
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowSquareOutIcon, BankIcon, BookOpenIcon, ChartLineUpIcon, CoinsIcon, SquaresFourIcon, TableIcon, VaultIcon } from '@phosphor-icons/react';
+import { ArrowSquareOutIcon, BankIcon, BookOpenIcon, CaretRightIcon, ChartLineUpIcon, CoinsIcon, SquaresFourIcon, TableIcon, VaultIcon } from '@phosphor-icons/react';
 import { config } from '@/datum.config';
+import { NAV_CHILDREN_MAX, type NavChild } from '@/lib/platform';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu,
-  SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarRail,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuAction,
+  SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarRail,
 } from '@/components/ui/sidebar';
 
 // Icons by route. A dashboard's own routes fall back to the grid icon; add them here when they recur.
 const ICONS: Record<string, React.ReactNode> = { '/': <SquaresFourIcon />, '/markets': <TableIcon />, '/vaults': <VaultIcon />, '/horizon': <BankIcon />, '/assets': <CoinsIcon />, '/methodology': <BookOpenIcon /> };
 const KIT = [{ href: '/kit/charts', label: 'Chart guide', icon: <ChartLineUpIcon /> }];
 
-export function AppSidebar({ badges = {}, showKit = false, ...props }: React.ComponentProps<typeof Sidebar> & { badges?: Record<string, number>; showKit?: boolean }) {
+export function AppSidebar({ badges = {}, subnav = {}, showKit = false, ...props }: React.ComponentProps<typeof Sidebar> & { badges?: Record<string, number>; subnav?: Record<string, NavChild[]>; showKit?: boolean }) {
   const path = usePathname();
   const active = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
   return (
@@ -37,14 +41,40 @@ export function AppSidebar({ badges = {}, showKit = false, ...props }: React.Com
           <SidebarGroupLabel>Pages</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {config.nav.map((n) => (
-                <SidebarMenuItem key={n.href}>
+              {config.nav.map((n) => {
+                const rows = subnav[n.href] ?? [];
+                const button = (
                   <SidebarMenuButton tooltip={n.label} isActive={active(n.href)} render={<Link href={n.href} />}>
                     {ICONS[n.href] ?? <SquaresFourIcon />}<span>{n.label}</span>
                   </SidebarMenuButton>
-                  {badges[n.href] ? <SidebarMenuBadge>{badges[n.href]}</SidebarMenuBadge> : null}
-                </SidebarMenuItem>
-              ))}
+                );
+                if (!rows.length) return (
+                  <SidebarMenuItem key={n.href}>{button}{badges[n.href] ? <SidebarMenuBadge>{badges[n.href]}</SidebarMenuBadge> : null}</SidebarMenuItem>
+                );
+                return (
+                  <Collapsible key={n.href} defaultOpen={active(n.href)} className="group/collapsible" render={<SidebarMenuItem />}>
+                    {button}
+                    {badges[n.href] ? <SidebarMenuBadge className="right-7">{badges[n.href]}</SidebarMenuBadge> : null}
+                    <CollapsibleTrigger render={<SidebarMenuAction showOnHover={false} aria-label={`Open ${n.label.toLowerCase()} list`} />}>
+                      <CaretRightIcon className="transition-transform group-data-[open]/collapsible:rotate-90" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {rows.slice(0, NAV_CHILDREN_MAX).map((r) => (
+                          <SidebarMenuSubItem key={r.href}>
+                            <SidebarMenuSubButton size="sm" isActive={path === r.href} render={<Link href={r.href} />}><span className="truncate">{r.label}</span></SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                        {rows.length > NAV_CHILDREN_MAX ? (
+                          <SidebarMenuSubItem>
+                            <SidebarMenuSubButton size="sm" render={<Link href={n.href} />}><span className="text-muted-foreground">All {rows.length} {n.label.toLowerCase()}</span></SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ) : null}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

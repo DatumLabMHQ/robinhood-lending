@@ -17,9 +17,14 @@ export const showKit = (s: PlatformStatus) => s.sample || process.env.NEXT_PUBLI
 
 /** What the frame asks a dashboard's lib/data.ts for, beyond its own pages' loaders. */
 export type SearchItem = { label: string; href: string; hint?: string };
+export type NavChild = { label: string; href: string };
 export type FrameData = {
   /** Rows for the cmd+k palette under "Search" (markets, assets, reserves...). */
   searchItems: () => Promise<SearchItem[]>;
   /** Counts shown as badges next to nav entries, by href. */
   navBadges: () => Promise<Record<string, number>>;
+  /** The rows listed under a nav entry when it is opened in the sidebar, by href (every market under
+   *  Markets, every vault under Vaults). The sidebar shows the first NAV_CHILDREN_MAX and a link to the rest. */
+  navChildren: () => Promise<Record<string, NavChild[]>>;
 };
+export const NAV_CHILDREN_MAX = 12;
