@@ -8,6 +8,7 @@ export const CHAINS: Record<number, { name: string; slug?: string }> = {
   747474: { name: 'Katana', slug: 'katana' }, 4663: { name: 'Robinhood Chain' }, 480: { name: 'World Chain', slug: 'world chain' },
   146: { name: 'Sonic', slug: 'sonic' }, 252: { name: 'Fraxtal', slug: 'fraxtal' }, 534352: { name: 'Scroll', slug: 'scroll' }, 100: { name: 'Gnosis', slug: 'xdai' },
   56: { name: 'BNB Chain', slug: 'binance' }, 5000: { name: 'Mantle', slug: 'mantle' }, 59144: { name: 'Linea', slug: 'linea' },
+  988: { name: 'Stable', slug: 'stable' }, 4217: { name: 'Tempo' }, 5042: { name: 'Arc', slug: 'arc' },
 };
 export const chainName = (id: number | string) => CHAINS[Number(id)]?.name ?? `Chain ${id}`;
 // Logos shipped with the kit (public/brand/logos) are served locally; others come from DefiLlama's CDN.
