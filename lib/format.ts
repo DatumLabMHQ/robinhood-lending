@@ -44,5 +44,5 @@ export function delta(v: unknown, digits = 1): string {
 }
 export const address = (a: string, n = 4) => (a && a.length > 2 * n + 2 ? `${a.slice(0, n + 2)}…${a.slice(-n)}` : a);
 
-export type Unit = 'usd' | 'pct' | 'count';
-export const byUnit: Record<Unit, (v: unknown) => string> = { usd: (v) => usd(v), pct: (v) => pct(v, 1), count: (v) => count(v) };
+export type Unit = 'usd' | 'pct' | 'count' | 'price';
+export const byUnit: Record<Unit, (v: unknown) => string> = { usd: (v) => usd(v), pct: (v) => pct(v, 1), count: (v) => count(v), price: (v) => price(v) };

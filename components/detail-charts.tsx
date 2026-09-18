@@ -3,10 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, LineChart, type Series } from '@/components/charts';
 import type { Point } from '@/lib/types';
+import type { Unit } from '@/lib/format';
 
-export function DetailCharts({ history, historySeries, historyTitle, historyDescription, rates, ratesSeries, ratesTitle, ratesDescription, asOf }: {
+export function DetailCharts({ history, historySeries, historyTitle, historyDescription, rates, ratesSeries, ratesTitle, ratesDescription, ratesUnit = 'pct', ratesZero = true, asOf }: {
   history: Point[]; historySeries: Series[]; historyTitle: string; historyDescription: React.ReactNode;
-  rates?: Point[]; ratesSeries?: Series[]; ratesTitle?: string; ratesDescription?: React.ReactNode; asOf: string;
+  rates?: Point[]; ratesSeries?: Series[]; ratesTitle?: string; ratesDescription?: React.ReactNode; ratesUnit?: Unit; ratesZero?: boolean; asOf: string;
 }) {
   return (
     <>
@@ -17,7 +18,7 @@ export function DetailCharts({ history, historySeries, historyTitle, historyDesc
       {rates && ratesSeries && rates.length > 1 ? (
         <Card>
           <CardHeader><CardTitle>{ratesTitle}</CardTitle><CardDescription>{ratesDescription}</CardDescription></CardHeader>
-          <CardContent className="px-2"><LineChart data={rates} series={ratesSeries} unit="pct" height={220} legend /></CardContent>
+          <CardContent className="px-2"><LineChart data={rates} series={ratesSeries} unit={ratesUnit} zero={ratesZero} height={220} legend /></CardContent>
         </Card>
       ) : null}
     </>
