@@ -8,7 +8,7 @@ const ph = (v: string, fallback: string) => (v.startsWith('{{') && v.endsWith('}
 
 export const config = {
   // 'draft' until `datum check <slug>` prints READY and the owner signs the brief; the page says so.
-  status: 'draft' as 'draft' | 'live',
+  status: 'live' as 'draft' | 'live',
   slug: ph('robinhood-lending', 'reference-dashboard'),
   title: ph('State of Lending on Robinhood Chain', 'State of lending'),
   description: ph('Every listed Morpho market and vault on Robinhood Chain, read hourly from the Datum data platform, with the rest of the chain\'s lending tracked beside it.', 'The reference dashboard for Datum Labs: the standard look and structure, running on labelled sample data until a platform key is set.'),

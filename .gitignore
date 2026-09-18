@@ -3,3 +3,7 @@ node_modules
 .vercel
 .env*
 .env*.local
+
+# playwright
+test-results/
+playwright-report/
