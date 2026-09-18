@@ -44,7 +44,7 @@ export function MarketHolders({ suppliers }: { suppliers: Holder[] }) {
   if (!suppliers.length) return null;
   return (
     <Card>
-      <CardHeader><CardTitle>Largest suppliers</CardTitle><CardDescription>Concentration is the quiet risk: one address leaving is a rate shock for everyone else.</CardDescription></CardHeader>
+      <CardHeader><CardTitle>Largest suppliers</CardTitle><CardDescription>Concentration is the quiet risk: one address leaving is a rate shock for everyone else. These {suppliers.length} hold {pct(suppliers.reduce((a, h) => a + h.share, 0), 0)} of supply.</CardDescription></CardHeader>
       <CardContent className="px-2">
         <ItemGroup>
           {suppliers.map((h, i) => (

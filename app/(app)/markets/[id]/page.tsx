@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { WalletIcon } from '@phosphor-icons/react/ssr';
 import { loadMarket } from '@/lib/data';
 import { count, pct, usd } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +9,7 @@ import { BarChart, RadialChart } from '@/components/charts';
 import { MarketCharts } from '@/components/market-charts';
 import { MarketDetailLayout } from '@/components/market-detail-layout';
 import { MarketFacts, MarketHolders } from '@/components/market-facts';
+import { CardRow } from '@/components/card-row';
 
 export const revalidate = 300;
 
@@ -58,22 +58,18 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             {stat('Borrow APY', pct(m.borrow_apy), 'annualised')}
           </div>
           <MarketCharts history={d.history} rates={d.rates} asOf={d.asOf} />
-          {/* Data cards sit in the main column, two up, so the two columns end near each other; the aside keeps only the dial and the facts. */}
+          {/* Data cards sit in the main column in a CardRow: the health chart sets the row's height and the
+              supplier list scrolls inside it, so the row, and the aside beside it, end on one line. */}
           {d.healthBands.length || d.suppliers.length ? (
-            <div className="grid grid-cols-1 gap-4 @3xl/main:grid-cols-2">
+            <CardRow>
               {d.healthBands.length ? (
                 <Card>
                   <CardHeader><CardTitle>Collateral by health factor</CardTitle><CardDescription>How much collateral sits close to liquidation. The band below 1.05 is what a small price move would clear.{d.healthCoverage ? ` Sampled from the ${count(d.healthCoverage.borrowers)} largest borrowers, ${pct(d.healthCoverage.pct, 0)} of the market's debt.` : ''}</CardDescription></CardHeader>
                   <CardContent className="px-2"><BarChart data={d.healthBands} x="name" series={[{ key: 'value', label: 'Collateral' }]} unit="usd" horizontal labels height={220} categoryWidth={80} /></CardContent>
                 </Card>
               ) : null}
-              {d.suppliers.length ? (
-                <div className="flex flex-col gap-2">
-                  <MarketHolders suppliers={d.suppliers} />
-                  <p className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground"><WalletIcon />{count(d.suppliers.length)} largest suppliers hold {pct(d.suppliers.reduce((a, h) => a + h.share, 0), 0)} of supply.</p>
-                </div>
-              ) : null}
-            </div>
+              {d.suppliers.length ? <MarketHolders suppliers={d.suppliers} /> : null}
+            </CardRow>
           ) : null}
         </>}
         aside={<>
