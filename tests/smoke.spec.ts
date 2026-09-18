@@ -21,10 +21,10 @@ async function checkPage(page: Page, path: string) {
   const gaps = await page.$$eval('[data-slot=page] > *', (els) => { const r = els.map((e) => e.getBoundingClientRect()).filter((x) => x.height > 0); return r.slice(1).map((x, i) => Math.round(x.top - r[i].bottom)); });
   for (const g of gaps) expect(g, `${path} section gap`).toBeGreaterThanOrEqual(16);
   // Detail columns end on the same line.
-  const panels = await page.$$eval('[data-slot=resizable-panel]', (ps) => ps.map((p) => Math.max(...[...p.querySelectorAll('[data-slot=card]')].map((c) => c.getBoundingClientRect().bottom))));
+  const panels = await page.$$eval('[data-slot=resizable-panel]', (ps) => ps.map((p) => Math.max(...Array.from(p.querySelectorAll('[data-slot=card]')).map((c) => c.getBoundingClientRect().bottom))));
   if (panels.length === 2) expect(Math.abs(panels[1] - panels[0]), `${path} column bottoms`).toBeLessThanOrEqual(4);
   // Cards that share a row end on the same line.
-  const rows = await page.$$eval('[data-slot=card-row]', (rows) => rows.map((row) => { const b = [...row.children].map((c) => c.getBoundingClientRect().bottom); return Math.max(...b) - Math.min(...b); }));
+  const rows = await page.$$eval('[data-slot=card-row]', (rows) => rows.map((row) => { const b = Array.from(row.children).map((c) => c.getBoundingClientRect().bottom); return Math.max(...b) - Math.min(...b); }));
   for (const spread of rows) expect(spread, `${path} card-row bottoms`).toBeLessThanOrEqual(4);
   // Every chart or table card carries a description (the caption rule).
   const cards = page.locator('[data-slot=card]:has(svg.recharts-surface), [data-slot=card]:has(table)');
@@ -35,7 +35,7 @@ async function checkPage(page: Page, path: string) {
 test('every page in the sidebar renders clean, and the first row of each table opens', async ({ page }) => {
   await page.addInitScript(SIGNED_IN);
   await page.goto('/');
-  const nav = await page.$$eval('[data-slot=sidebar-menu-button][href^="/"]', (as) => [...new Set(as.map((a) => a.getAttribute('href') as string))]);
+  const nav = await page.$$eval('[data-slot=sidebar-menu-button][href^="/"]', (as) => Array.from(new Set(as.map((a) => a.getAttribute('href') as string))));
   expect(nav.length, 'nav entries').toBeGreaterThanOrEqual(2);
   const seen = new Set<string>();
   for (const path of nav) {
