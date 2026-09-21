@@ -1,12 +1,13 @@
 'use client';
 // The sign-in gate. The overview is open to everyone; every other page asks once for a name, an email
-// and an occupation before it opens (config.gate: enabled, free paths). Two rules keep it safe:
-//   1. the server never renders a page blurred or inert, so nothing that fails to hydrate can leave a
-//      reader stuck behind a gate they cannot answer, and crawlers always see the page;
-//   2. the blur itself is CSS, switched by data-gate on <html>, which a tiny inline script sets from
-//      localStorage or the cookie before the first paint, so a signed-in reader sees no flash.
-// React only adds inert and the dialog once the browser has answered. Leads go to /api/gate, which
-// puts them on the Datum Labs list.
+// and an occupation before it opens (config.gate: enabled, free paths). One rule keeps it safe: nothing
+// about the gate is ever decided while rendering. The server cannot know whether a reader has signed in,
+// and when Next refreshes a cached page on the server the path it reports is not reliable either, so a
+// page rendered there must carry no gate state at all or it is cached and served to everyone.
+// Instead a small inline script, running before the first paint, reads the browser's own URL and its
+// memory of the sign-in and marks <html> open or locked; globals.css blurs a locked page. React adds the
+// dialog and inert only after the browser has answered. Every path through it fails open, so a page that
+// never finishes hydrating is readable rather than a trap. Leads go to /api/gate (the Datum Labs list).
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -37,10 +38,16 @@ const remember = () => {
   try { localStorage.setItem(KEY, '1'); } catch { /* private mode: the cookie may still hold */ }
   try { document.cookie = 'datum_gate=1; max-age=31536000; path=/; samesite=lax'; } catch { /* blocked */ }
 };
-// The flag the stylesheet reads. Absent during server rendering, which is what keeps the page open there.
-const flag = (unlocked: boolean) => { try { document.documentElement.dataset.gate = unlocked ? 'open' : 'locked'; } catch { /* no document */ } };
-// Runs while the browser parses the page, before anything is painted, and fails open on any error.
-const BOOT = `try{var k=localStorage.getItem('${KEY}')==='1'}catch(e){k=false}try{var c=/(^|;\\s*)datum_gate=1(;|$)/.test(document.cookie)}catch(e){c=false}document.documentElement.dataset.gate=(k||c)?'open':'locked'`;
+// The flag the stylesheet reads: 'locked' only for a reader who has not signed in, on a page that is not
+// free. Both halves are decided in the browser, never on the server, where the path cannot be trusted.
+const flag = (unlocked: boolean, path: string | null | undefined) => {
+  try { document.documentElement.dataset.gate = unlocked || isFree(path) ? 'open' : 'locked'; } catch { /* no document */ }
+};
+// Runs while the browser parses the page, before anything is painted, and fails open on any error. It reads
+// location.pathname rather than the router, so a page served from the cache is judged by the reader's own URL.
+const BOOT = `(function(){try{var k=false,c=false;try{k=localStorage.getItem('${KEY}')==='1'}catch(e){}try{c=/(^|;\\s*)datum_gate=1(;|$)/.test(document.cookie)}catch(e){}var p=location.pathname.replace(/\\/$/,'')||'/';var F=${JSON.stringify(GATE.free)};var f=F.some(function(x){return x==='/'?p==='/':p===x||p.indexOf(x+'/')===0});document.documentElement.dataset.gate=(k||c||f)?'open':'locked'}catch(e){document.documentElement.dataset.gate='open'}})()`;
+// useLayoutEffect on the browser so a client-side navigation re-judges the page before it is painted.
+const useIsoLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
 
 type Ctx = { unlocked: boolean | null; open: boolean; setOpen: (v: boolean) => void; unlock: () => void };
 const GateContext = React.createContext<Ctx | null>(null);
@@ -51,8 +58,8 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
   // open, and the inline script below has already blurred it in CSS if the reader has not signed in.
   const [unlocked, setUnlocked] = React.useState<boolean | null>(GATE.enabled ? null : true);
   const [open, setOpen] = React.useState(false);
-  React.useEffect(() => { if (!GATE.enabled) return; const u = remembered(); flag(u); setUnlocked(u); }, []);
-  const unlock = React.useCallback(() => { remember(); flag(true); setUnlocked(true); setOpen(false); }, []);
+  React.useEffect(() => { if (GATE.enabled) setUnlocked(remembered()); }, []);
+  const unlock = React.useCallback(() => { remember(); setUnlocked(true); setOpen(false); }, []);
   return (
     <GateContext.Provider value={{ unlocked, open, setOpen, unlock }}>
       {GATE.enabled ? <script dangerouslySetInnerHTML={{ __html: BOOT }} /> : null}
@@ -65,15 +72,15 @@ export function GateProvider({ children }: { children: React.ReactNode }) {
 export function Gate({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const g = useGate();
-  // data-gate-scope marks a page the stylesheet may blur; whether it does is the reader's flag on <html>.
-  const scoped = GATE.enabled && !isFree(path);
-  // Only true once the browser has answered and said no, so the server and the first client render agree
-  // that the page is open and no failed hydration can leave it inert.
-  const gated = scoped && Boolean(g) && g!.unlocked === false;
+  // Only true once the browser has answered and said no. Nothing here runs differently on the server, so a
+  // page that is prerendered, cached, or refreshed on the server never carries one reader's gate state.
+  const gated = GATE.enabled && Boolean(g) && g!.unlocked === false && !isFree(path);
+  // Keep the flag in step with a client-side navigation, before the new page is painted.
+  useIsoLayoutEffect(() => { if (GATE.enabled && g && g.unlocked !== null) flag(g.unlocked, path); }, [g?.unlocked, path]);
   return (
     <>
       {/* The wrapper keeps the page's own vertical rhythm (the same column and gaps as the layout), so wrapping changes nothing when signed in. */}
-      <div data-slot="page" data-gate-scope={scoped ? '' : undefined} inert={gated || undefined} aria-hidden={gated || undefined} className="flex flex-col gap-4 md:gap-6">{children}</div>
+      <div data-slot="page" inert={gated || undefined} aria-hidden={gated || undefined} className="flex flex-col gap-4 md:gap-6">{children}</div>
       {g ? <GateDialog open={gated || (g.open && g.unlocked !== true)} required={gated} /> : null}
     </>
   );
