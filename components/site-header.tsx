@@ -10,7 +10,8 @@ import { SignInButton } from '@/components/gate';
 
 export async function SiteHeader() {
   const [s, items] = await Promise.all([platformStatus(), searchItems().catch(() => [])]);
-  const status = s.sample ? { label: 'Sample data', cls: 'text-(--brand-blue)' }
+  const status = s.source === 'dashboard' ? { label: 'Live data', cls: 'text-(--green)' }
+    : s.sample ? { label: 'Sample data', cls: 'text-(--brand-blue)' }
     : s.ok === null ? { label: 'Platform unreachable', cls: 'text-(--red)' }
     : s.ok ? { label: `Platform healthy · ${s.asOf ?? ''}`, cls: 'text-(--green)' } : { label: 'Platform degraded', cls: 'text-(--yellow)' };
   return (

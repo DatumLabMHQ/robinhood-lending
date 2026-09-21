@@ -116,3 +116,8 @@
 .recharts-cartesian-grid line, .recharts-polar-grid line, .recharts-polar-grid path, .recharts-polar-grid circle, .recharts-polar-grid polygon { stroke: var(--line); }
 .recharts-radial-bar-background-sector { fill: var(--bg-2); }
 .recharts-surface, .recharts-layer, .recharts-sector { outline: none; }
+
+/* The sign-in gate blurs in CSS, never in the server's HTML. The gate marks a gated page with
+   data-gate-scope and an inline script sets data-gate on <html> before the first paint, so a signed-in
+   reader never sees a flash and a page that fails to hydrate is still readable rather than stuck. */
+html[data-gate='locked'] [data-gate-scope] { filter: blur(5px); opacity: 0.6; pointer-events: none; user-select: none; }

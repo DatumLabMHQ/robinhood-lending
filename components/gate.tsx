@@ -1,9 +1,12 @@
 'use client';
 // The sign-in gate. The overview is open to everyone; every other page asks once for a name, an email
-// and an occupation before it opens (config.gate: enabled, free paths). The page is still rendered
-// underneath, blurred and inert, so nothing changes for the server or for crawlers; the browser
-// remembers the sign-in (localStorage and a cookie), and the header's Sign in button opens the same
-// dialog from a free page. Leads go to /api/gate, which puts them on the Datum Labs list.
+// and an occupation before it opens (config.gate: enabled, free paths). Two rules keep it safe:
+//   1. the server never renders a page blurred or inert, so nothing that fails to hydrate can leave a
+//      reader stuck behind a gate they cannot answer, and crawlers always see the page;
+//   2. the blur itself is CSS, switched by data-gate on <html>, which a tiny inline script sets from
+//      localStorage or the cookie before the first paint, so a signed-in reader sees no flash.
+// React only adds inert and the dialog once the browser has answered. Leads go to /api/gate, which
+// puts them on the Datum Labs list.
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,33 +23,56 @@ const KEY = 'datum_gate_unlocked';
 const OCCUPATIONS = ['Analyst', 'Protocol founder or team', 'Investor or allocator', 'Trader', 'Researcher', 'Developer or engineer', 'Risk manager', 'Curator or vault manager', 'Journalist or writer', 'Student', 'Other'];
 const GATE: { enabled: boolean; free: string[] } = { enabled: true, free: ['/'], ...((config as { gate?: { enabled?: boolean; free?: string[] } }).gate ?? {}) };
 const isFree = (path: string) => GATE.free.some((f) => (f === '/' ? path === '/' : path === f || path.startsWith(f + '/')));
-const remembered = () => { try { return localStorage.getItem(KEY) === '1' || document.cookie.includes('datum_gate=1'); } catch { return false; } };
-const remember = () => { try { localStorage.setItem(KEY, '1'); document.cookie = 'datum_gate=1; max-age=31536000; path=/; samesite=lax'; } catch { /* private mode: the dialog shows again next time */ } };
+// Read once, tolerantly: either store on its own is enough, and a browser that refuses both fails open.
+const remembered = () => {
+  let ls = false, ck = false;
+  try { ls = localStorage.getItem(KEY) === '1'; } catch { /* private mode */ }
+  try { ck = /(^|;\s*)datum_gate=1(;|$)/.test(document.cookie); } catch { /* blocked */ }
+  return ls || ck;
+};
+// Write both, independently, so one store refusing does not lose the other.
+const remember = () => {
+  try { localStorage.setItem(KEY, '1'); } catch { /* private mode: the cookie may still hold */ }
+  try { document.cookie = 'datum_gate=1; max-age=31536000; path=/; samesite=lax'; } catch { /* blocked */ }
+};
+// The flag the stylesheet reads. Absent during server rendering, which is what keeps the page open there.
+const flag = (unlocked: boolean) => { try { document.documentElement.dataset.gate = unlocked ? 'open' : 'locked'; } catch { /* no document */ } };
+// Runs while the browser parses the page, before anything is painted, and fails open on any error.
+const BOOT = `try{var k=localStorage.getItem('${KEY}')==='1'}catch(e){k=false}try{var c=/(^|;\\s*)datum_gate=1(;|$)/.test(document.cookie)}catch(e){c=false}document.documentElement.dataset.gate=(k||c)?'open':'locked'`;
 
 type Ctx = { unlocked: boolean | null; open: boolean; setOpen: (v: boolean) => void; unlock: () => void };
 const GateContext = React.createContext<Ctx | null>(null);
 export const useGate = () => React.useContext(GateContext);
 
 export function GateProvider({ children }: { children: React.ReactNode }) {
-  // null until the browser has been asked: gated pages stay blurred, without a dialog, for that instant.
+  // null until the browser has been asked. Nothing is gated in that window: the server renders the page
+  // open, and the inline script below has already blurred it in CSS if the reader has not signed in.
   const [unlocked, setUnlocked] = React.useState<boolean | null>(GATE.enabled ? null : true);
   const [open, setOpen] = React.useState(false);
-  React.useEffect(() => { if (GATE.enabled) setUnlocked(remembered()); }, []);
-  const unlock = React.useCallback(() => { remember(); setUnlocked(true); setOpen(false); }, []);
-  return <GateContext.Provider value={{ unlocked, open, setOpen, unlock }}>{children}</GateContext.Provider>;
+  React.useEffect(() => { if (!GATE.enabled) return; const u = remembered(); flag(u); setUnlocked(u); }, []);
+  const unlock = React.useCallback(() => { remember(); flag(true); setUnlocked(true); setOpen(false); }, []);
+  return (
+    <GateContext.Provider value={{ unlocked, open, setOpen, unlock }}>
+      {GATE.enabled ? <script dangerouslySetInnerHTML={{ __html: BOOT }} /> : null}
+      {children}
+    </GateContext.Provider>
+  );
 }
 
 /** Wraps a page: free paths render as they are; gated paths render blurred and inert until signed in. */
 export function Gate({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const g = useGate();
-  const gated = Boolean(g) && g!.unlocked !== true && !isFree(path);
-  const required = gated && g!.unlocked === false;
+  // data-gate-scope marks a page the stylesheet may blur; whether it does is the reader's flag on <html>.
+  const scoped = GATE.enabled && !isFree(path);
+  // Only true once the browser has answered and said no, so the server and the first client render agree
+  // that the page is open and no failed hydration can leave it inert.
+  const gated = scoped && Boolean(g) && g!.unlocked === false;
   return (
     <>
       {/* The wrapper keeps the page's own vertical rhythm (the same column and gaps as the layout), so wrapping changes nothing when signed in. */}
-      <div data-slot="page" inert={gated || undefined} aria-hidden={gated || undefined} className={`flex flex-col gap-4 md:gap-6${gated ? ' pointer-events-none select-none blur-sm opacity-60' : ''}`}>{children}</div>
-      {g ? <GateDialog open={required || (g.open && g.unlocked !== true)} required={required} /> : null}
+      <div data-slot="page" data-gate-scope={scoped ? '' : undefined} inert={gated || undefined} aria-hidden={gated || undefined} className="flex flex-col gap-4 md:gap-6">{children}</div>
+      {g ? <GateDialog open={gated || (g.open && g.unlocked !== true)} required={gated} /> : null}
     </>
   );
 }

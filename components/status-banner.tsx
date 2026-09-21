@@ -21,7 +21,7 @@ export async function StatusBanner() {
       <Alert className="border-(--yellow)/40 bg-(--yellow)/8">
         <WarningIcon />
         <AlertTitle>Draft</AlertTitle>
-        <AlertDescription>Numbers are live from the platform, but the brief is not signed off and the reconciliation is not logged. Do not embed or share yet.</AlertDescription>
+        <AlertDescription>Numbers are live from {s.source === 'dashboard' ? 'this dashboard’s own sources' : 'the platform'}, but the brief is not signed off and the reconciliation is not logged. Do not embed or share yet.</AlertDescription>
       </Alert>
     );
   }
