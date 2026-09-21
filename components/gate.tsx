@@ -22,7 +22,9 @@ const KEY = 'datum_gate_unlocked';
 // What the reader does, as a list to pick from rather than a box to type in. Sent to the list as the Occupation field.
 const OCCUPATIONS = ['Analyst', 'Protocol founder or team', 'Investor or allocator', 'Trader', 'Researcher', 'Developer or engineer', 'Risk manager', 'Curator or vault manager', 'Journalist or writer', 'Student', 'Other'];
 const GATE: { enabled: boolean; free: string[] } = { enabled: true, free: ['/'], ...((config as { gate?: { enabled?: boolean; free?: string[] } }).gate ?? {}) };
-const isFree = (path: string) => GATE.free.some((f) => (f === '/' ? path === '/' : path === f || path.startsWith(f + '/')));
+// A path we cannot read is free. usePathname() is typed as a string but comes back empty when Next
+// re-renders a static page on the server to refresh it, and a gate must never lock a page it cannot name.
+const isFree = (path: string | null | undefined) => !path || GATE.free.some((f) => (f === '/' ? path === '/' : path === f || path.startsWith(f + '/')));
 // Read once, tolerantly: either store on its own is enough, and a browser that refuses both fails open.
 const remembered = () => {
   let ls = false, ck = false;

@@ -56,6 +56,7 @@ test('the overview is open, the rest gates, and signing in holds', async ({ page
   for (const path of ['/', nav[0]]) {
     const html = await (await request.get(path)).text();
     expect(html, `${path} server HTML renders the page open`).not.toMatch(/data-slot="page"[^>]*(inert|blur)/);
+    if (path === '/') expect(html, 'a free path is never marked gated').not.toMatch(/data-gate-scope/);
   }
   // A gated page asks, and asks over a page that is present but inert.
   await page.goto(nav[0]);
